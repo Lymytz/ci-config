@@ -17,18 +17,6 @@ jobs:
       - name: Run Tests and Coverage Check
         run: mvn verify
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: test-results
-          path: target/surefire-reports
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: coverage-report
-          path: target/site/jacoco
-
       - name: Upload Surefire HTML report
         uses: actions/upload-artifact@v3.1.3
         with:
