@@ -5,7 +5,7 @@
         <server>
             <id>github</id>
             <username>alabienG</username>
-            <password>toto</password>
+<!--            <password>toto</password>-->
         </server>
     </servers>
 </settings>
