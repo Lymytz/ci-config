@@ -29,7 +29,7 @@ jobs:
         run: mvn verify
 
       - name: Upload Surefire HTML report
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4
         with:
           name: surefire-html-report
           path: target/site/surefire-report.html
