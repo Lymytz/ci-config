@@ -31,5 +31,5 @@ jobs:
       - name: Upload Surefire HTML report
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-html-report
-          path: target/site/surefire-report.html
+          name: jacoco-report
+          path: target/site/jacoco/index.html
