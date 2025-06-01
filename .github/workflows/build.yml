@@ -18,7 +18,7 @@ jobs:
               <server>
                 <id>github</id>
                 <username>alabienG</username>
-                <password>${{ secrets.PASSWORD }}</password>
+                <password>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</password>
               </server>
             </servers>
           </settings>
