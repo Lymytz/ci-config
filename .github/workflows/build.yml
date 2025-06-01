@@ -21,4 +21,4 @@ jobs:
           cat $HOME/.m2/settings.xml
 
       - name: Build Project
-        run: mvn clean install
+        run: mvn compile
