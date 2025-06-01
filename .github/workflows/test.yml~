@@ -28,9 +28,3 @@ jobs:
         with:
           name: coverage-report
           path: target/site/jacoco
-
-      - name: Upload Surefire HTML report
-        uses: actions/upload-artifact@v3
-        with:
-          name: surefire-html-report
-          path: target/site/surefire-report.html
