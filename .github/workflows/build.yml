@@ -3,6 +3,9 @@ name: Build
 
 on:
   workflow_call:
+    secrets:
+      TOKEN_CI:
+        required: true
 
 jobs:
   build:
