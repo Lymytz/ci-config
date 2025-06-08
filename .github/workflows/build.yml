@@ -52,8 +52,7 @@ jobs:
   packaging:
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ inputs.packaging == true }}
-
+    if: ${{ inputs.packaging && inputs.packaging == true }}
     steps:
       - uses: actions/checkout@v3
 
