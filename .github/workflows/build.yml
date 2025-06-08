@@ -17,9 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: setup maven settings
-        uses: .github/actions/setup-maven
-        with:
-          token: ${{ secrets.TOKEN_CI }}
+        run: |
+          mkdir -p $HOME/.m2
+          cp settings.xml $HOME/.m2/
+          sed -i "s|{{PASSWORD}}|${{ secrets.TOKEN_CI }}|g" $HOME/.m2/settings.xml
+          sed -i "s|{{USERNAME}}|alabienG|g" $HOME/.m2/settings.xml
+          cat $HOME/.m2/settings.xml
 
       - name: Build Project
         run: mvn compile
@@ -36,9 +39,12 @@ jobs:
           java-version: '17'
 
       - name: setup maven settings
-        uses: .github/actions/setup-maven
-        with:
-          token: ${{ secrets.TOKEN_CI }}
+        run: |
+          mkdir -p $HOME/.m2
+          cp settings.xml $HOME/.m2/
+          sed -i "s|{{PASSWORD}}|${{ secrets.TOKEN_CI }}|g" $HOME/.m2/settings.xml
+          sed -i "s|{{USERNAME}}|alabienG|g" $HOME/.m2/settings.xml
+          cat $HOME/.m2/settings.xml
 
       - name: Run Tests and Coverage Check
         run: mvn verify
@@ -63,9 +69,12 @@ jobs:
           java-version: '17'
 
       - name: setup maven settings
-        uses: .github/actions/setup-maven
-        with:
-          token: ${{ secrets.TOKEN_CI }}
+        run: |
+          mkdir -p $HOME/.m2
+          cp settings.xml $HOME/.m2/
+          sed -i "s|{{PASSWORD}}|${{ secrets.TOKEN_CI }}|g" $HOME/.m2/settings.xml
+          sed -i "s|{{USERNAME}}|alabienG|g" $HOME/.m2/settings.xml
+          cat $HOME/.m2/settings.xml
 
       - name: Package Project
         run: mvn deploy -DskipTests
