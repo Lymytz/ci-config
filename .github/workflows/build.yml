@@ -1,11 +1,15 @@
 
-name: Build
+name: Build & Test
 
 on:
   workflow_call:
     secrets:
       TOKEN_CI:
         required: true
+    inputs:
+      packaging:
+        required: false
+        type: boolean
 
 jobs:
   build:
@@ -13,12 +17,58 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: setup maven settings
-        run: |
-          mkdir -p $HOME/.m2
-          cp settings.xml $HOME/.m2/ 
-          sed -i "s|{{PASSWORD}}|${{secrets.TOKEN_CI}}|g" $HOME/.m2/settings.xml
-          sed -i "s|{{USERNAME}}|alabienG|g" $HOME/.m2/settings.xml
-          cat $HOME/.m2/settings.xml
+        uses: .github/actions/setup-maven
+        with:
+          token: ${{ secrets.TOKEN_CI }}
 
       - name: Build Project
         run: mvn compile
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: setup maven settings
+        uses: .github/actions/setup-maven
+        with:
+          token: ${{ secrets.TOKEN_CI }}
+
+      - name: Run Tests and Coverage Check
+        run: mvn verify
+
+      - name: Upload Surefire HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/index.html
+
+  packaging:
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ inputs.packaging == true }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: setup maven settings
+        uses: .github/actions/setup-maven
+        with:
+          token: ${{ secrets.TOKEN_CI }}
+
+      - name: Package Project
+        run: mvn deploy -DskipTests
+
+
