@@ -76,7 +76,39 @@ jobs:
           sed -i "s|{{USERNAME}}|alabienG|g" $HOME/.m2/settings.xml
           cat $HOME/.m2/settings.xml
 
+      - name: Extratc version
+        id: extract_version
+        run: |
+          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "artifact=$ARTIFACT_ID" >> $GITHUB_OUTPUT
+
+      - name: Check if version already exists
+        id: check_version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN_CI }}
+        run: |
+          OWNER=${{ github.repository_owner }}
+          REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          PACKAGE_NAME=${{ steps.extract_version.outputs.artifact }}
+          VERSION=${{ steps.extract_version.outputs.version }}
+
+          echo "Checking for version $VERSION of $PACKAGE_NAME in $OWNER/$REPO..."
+
+          VERSIONS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/users/$OWNER/packages/maven/$PACKAGE_NAME/versions")
+
+          if echo "$VERSIONS" | grep -q "\"name\":\s*\"$VERSION\""; then
+             echo "Version $VERSION already exists. Skipping deployment."
+             echo "skip_deploy=true" >> $GITHUB_OUTPUT
+          else
+             echo "Version $VERSION does not exist. Proceeding with deployment."
+             echo "skip_deploy=false" >> $GITHUB_OUTPUT
+
       - name: Package Project
+        if: steps.check_version.outputs.skip_deploy == 'false'
         run: mvn deploy -DskipTests
 
 
