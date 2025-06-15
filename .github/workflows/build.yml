@@ -58,7 +58,7 @@ jobs:
   packaging:
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ inputs.packaging && inputs.packaging == true }}
+    if: ${{ inputs.packaging && inputs.packaging == true && github.refs == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v3
 
