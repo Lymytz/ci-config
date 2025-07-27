@@ -7,7 +7,7 @@ on:
       TOKEN_CI:
         required: true
     inputs:
-      GITHUB_USER_NAME:
+      github_username:
         required: true
         description: Nom d'utilisateur github
         type: string
