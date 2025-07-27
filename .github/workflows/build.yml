@@ -50,13 +50,16 @@ jobs:
         run: |
           test -f  ~/.m2/settings.xml && echo "settings.xml créé"
       - name: Compilation maven
-        run: | 
-          if[[ "${{inputs.java_version}}" == "17" ]]; then
+        run: |
+          if ["${{ inputs.java_version }}" == "17" ]
+          then
             mvn compile -Pjava17
-          elif [[ "${{inputs.java_version}}" == "21" ]]; then
-            mvn compile - Pjava21
+          elif [ "${{ inputs.java_version }}" == "21" ]
+          then
+            mvn compile -Pjava21
           else
-            echo "Version de java non supportée : ${{inputs.java_version}}"
+            echo "Version de java non supportée : ${{ inputs.java_version }}"
+            exit 1
           fi
   test:
     runs-on: ubuntu-latest
