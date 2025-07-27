@@ -57,7 +57,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=a003_vente -Dsonar.projectName='a003_gestion_des_vente'
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=a003_gestion_des_vente -Dsonar.projectName='a003_gestion_des_vente'
 
       - name: Upload Surefire HTML report
         uses: actions/upload-artifact@v4
