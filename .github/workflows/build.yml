@@ -51,7 +51,7 @@ jobs:
           test -f  ~/.m2/settings.xml && echo "settings.xml créé"
       - name: Compilation maven
         run: |
-          if ["${{ inputs.java_version }}" == "17" ]
+          if [ "${{ inputs.java_version }}" == "17" ]
           then
             mvn compile -Pjava17
           elif [ "${{ inputs.java_version }}" == "21" ]
