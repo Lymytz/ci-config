@@ -67,7 +67,7 @@ jobs:
           PROJECT_NAME: ${{ inputs.project_name }}
         run: |
           CMD="mvn -B verify"
-          if[[ -n "$PROJECT_KEY" ]]; then
+          if [[ -n "$PROJECT_KEY" ]]; then
             CMD="$CMD org.sonarsource.scanner.maven:sonar-maven-plugin:sonar"
             CMD="$CMD -Dsonar.host.url=$SONAR_HOST_URL"
             CMD="$CMD -Dsonar.projectKey=$PROJECT_KEY"
