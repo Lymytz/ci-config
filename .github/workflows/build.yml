@@ -49,6 +49,9 @@ jobs:
           github_user_name: ${{ secrets.GITHUB_USER }}
           github_token: ${{ secrets.TOKEN_CI }}
       - name: Run Tests and Coverage Check
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=a003_vente -Dsonar.projectName='a003_gestion_des_vente'
 
       - name: Upload Surefire HTML report
