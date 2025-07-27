@@ -26,6 +26,8 @@ jobs:
       - uses: Lymytz/ci_actions/maven-compiler@v1
         with:
           java_version: ${{ inputs.java_version }}
+          github_user_name: ${{ secrets.GITHUB_USER }}
+          github_token: ${{ secrets.TOKEN_CI }}
       - name: Compilation maven
         run: |
           if [ "${{ inputs.java_version }}" == "17" ]
@@ -44,6 +46,8 @@ jobs:
       - uses: Lymytz/ci_actions/maven-compiler@v1
         with:
           java_version: ${{ inputs.java_version }}
+          github_user_name: ${{ secrets.GITHUB_USER }}
+          github_token: ${{ secrets.TOKEN_CI }}
       - name: Run Tests and Coverage Check
         run: mvn verify
 
