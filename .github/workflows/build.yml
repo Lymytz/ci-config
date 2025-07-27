@@ -23,7 +23,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: Lymytz/ci-config/.github/actions/mvn-compile/
+      - uses: Lymytz/ci-config/.github/actions/mvn-compile/action.yml@main
         with:
           java_version: ${{ inputs.java_version }}
       - name: Compilation maven
@@ -41,7 +41,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: Lymytz/ci-config/.github/actions/mvn-compile/
+      - uses: Lymytz/ci-config/.github/actions/mvn-compile/action.yml@main
         with:
           java_version: ${{ inputs.java_version }}
       - name: Run Tests and Coverage Check
