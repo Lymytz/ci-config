@@ -22,6 +22,12 @@ on:
         required: false
         type: string
         default: '17'
+      project_key:
+        type: string
+        required: false
+      project_name:
+        type: string
+        required: false
 
 jobs:
   build:
@@ -57,8 +63,19 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.projectKey=a003_gestion_des_vente -Dsonar.projectName='a003_gestion_des_vente'
-
+          PROJECT_KEY: ${{ inputs.project_key }}
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+          CMD="mvn -B verify"
+          if[ -n "$PROJECT_KEY" ]
+            then
+            CMD="$CMD org.sonarsource.scanner.maven:sonar-maven-plugin:sonar"
+            CMD="$CMD -Dsonar.host.url=$SONAR_HOST_URL"
+            CMD="$CMD -Dsonar.projectKey=$PROJECT_KEY"
+            CMD="$CMD -Dsonar.projectName=PROJECT_NAME"
+          echo "Commande executée : $CMD"
+          eval "$CMD"
+        shell: bash
       - name: Upload Surefire HTML report
         uses: actions/upload-artifact@v4
         with:
@@ -76,7 +93,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{inputs.java_version}}
 
       - name: setup maven settings
         run: |
