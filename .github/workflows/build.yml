@@ -6,6 +6,10 @@ on:
     secrets:
       TOKEN_CI:
         required: true
+      SONAR_TOKEN:
+        required: true
+      SONAR_HOST_URL:
+        required: true
     inputs:
       github_username:
         required: true
