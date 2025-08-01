@@ -53,7 +53,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: Lymytz/ci_actions/maven-compiler@v2
+      - uses: Lymytz/ci_config/composite/maven-compiler@v1
         with:
           java_version: ${{ inputs.java_version }}
           github_user_name: ${{ secrets.GITHUB_USER }}
