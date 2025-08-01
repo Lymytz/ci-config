@@ -70,6 +70,7 @@ jobs:
           if [[ -n "$PROJECT_KEY" ]]; then
             CMD="$CMD jacoco:report"
             CMD="$CMD org.sonarsource.scanner.maven:sonar-maven-plugin:sonar"
+            CMD="$CMD -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
             CMD="$CMD -Dsonar.host.url=$SONAR_HOST_URL"
             CMD="$CMD -Dsonar.projectKey=$PROJECT_KEY"
             CMD="$CMD -Dsonar.projectName=$PROJECT_NAME"
@@ -87,7 +88,17 @@ jobs:
         with:
             name: coverage-report
             path: target/site/jacoco/
-
+      - name: Build Image
+        run: |
+          echo "Construction de l'image docker"
+          if [[ -f ".DokerFile" && ${{github}} ]]; then
+            Docker build -t ${{inputs.project_key}}:${{github.sha}}
+          else
+            echo "Pas de docker file détecté... construction de l'image ignoré"
+          fi
+      - name: Deploy
+        run: |
+          echo "Déploiement sur la VM..."
   packaging:
     needs: test
     runs-on: ubuntu-latest
