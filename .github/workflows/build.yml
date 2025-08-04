@@ -10,6 +10,12 @@ on:
         required: true
       SONAR_HOST_URL:
         required: true
+      VM_USER:
+        required: true
+      VM_HOST:
+        required: true
+      VM_SSH_KEY:
+        required: true
     inputs:
       github_username:
         required: true
@@ -68,6 +74,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           PROJECT_KEY: ${{ inputs.project_key }}
           PROJECT_NAME: ${{ inputs.project_name }}
+          TAG: ${{ github.head_ref || github.ref_name || 'latest' }}
         run: |
           CMD="mvn clean install"
           if [[ -n "$PROJECT_KEY" ]]; then
@@ -106,13 +113,28 @@ jobs:
       - name: Build Image
         run: |
           echo "Construction de l'image docker"
-          if [[ -f Dockerfile ]]; then
-            docker build -t ${{inputs.project_key}}:${{github.head_ref}} .
+          if [[ -f Dockerfile ]]; then            
+            docker build -t ${{inputs.project_key}}:$TAG .
           else
             echo "Pas de docker file détecté... construction de l'image ignoré"
             exit 1
           fi
       - run: ls -l
+      - name: Export docker image
+        run: |
+          IMAGE_NAME="${{ inputs.project_key }}"
+          IMAGE_TAG="${{ github.ref_name || github.head_ref || 'latest' }}"
+          FILE_NAME="${IMAGE_NAME}-${IMAGE_TAG}.tar"
+          echo "Sauvegarde de l'image $IMAGE_NAME:$IMAGE_TAG dans $FILE_NAME"
+          docker save -o "$FILE_NAME" "$IMAGE_NAME:$IMAGE_TAG"
+      - name: Copier l'image sur la vm
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "monapp.tar"
+          target: "~/monapp.tar"
       - name: Deploy
         run: |
           echo "Déploiement sur la VM..."
