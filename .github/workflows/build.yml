@@ -98,8 +98,9 @@ jobs:
           curl -sSL -o Dockerfile https://raw.githubusercontent.com/Lymytz/ci_actions/main/dockerFiles/Dockerfile
       - name: Vérification du statut du téléchargement
         run: |
-          if ! [[ -f ".Dokerfile" ]]; then
-            echo "Aucun fichier docker file n'a pu ếtre técléchargé"
+          if [ ! -f Dockerfile ]; then
+            ls -l
+            echo "::error ::Dockerfile introuvable. Échec du téléchargement."            
           fi
       - name: Build Image
         run: |
@@ -108,6 +109,7 @@ jobs:
             Docker build -t ${{inputs.project_key}}:${{github.sha}}
           else
             echo "Pas de docker file détecté... construction de l'image ignoré"
+            exit 1
           fi
       - name: Deploy
         run: |
