@@ -74,7 +74,6 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           PROJECT_KEY: ${{ inputs.project_key }}
           PROJECT_NAME: ${{ inputs.project_name }}
-          TAG: ${{ 'latest' }}
         run: |
           CMD="mvn clean install"
           if [[ -n "$PROJECT_KEY" ]]; then
@@ -112,6 +111,7 @@ jobs:
           fi
       - name: Build Image
         run: |
+          TAG="${{ github.ref_name || github.head_ref || 'latest' }}"
           echo "Construction de l'image docker TAG= $TAG"
           if [[ -f Dockerfile ]]; then            
             docker build -t ${{inputs.project_key}}:$TAG .
