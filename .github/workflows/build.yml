@@ -112,7 +112,7 @@ jobs:
           fi
       - name: Build Image
         run: |
-          echo "Construction de l'image docker"
+          echo "Construction de l'image docker TAG= $TAG"
           if [[ -f Dockerfile ]]; then            
             docker build -t ${{inputs.project_key}}:$TAG .
           else
