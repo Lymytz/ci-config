@@ -112,6 +112,7 @@ jobs:
             echo "Pas de docker file détecté... construction de l'image ignoré"
             exit 1
           fi
+      - run: ls -l
       - name: Deploy
         run: |
           echo "Déploiement sur la VM..."
