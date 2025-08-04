@@ -69,7 +69,7 @@ jobs:
           PROJECT_KEY: ${{ inputs.project_key }}
           PROJECT_NAME: ${{ inputs.project_name }}
         run: |
-          CMD="mvn -B verify"
+          CMD="mvn clean install"
           if [[ -n "$PROJECT_KEY" ]]; then
             CMD="$CMD jacoco:report"
             CMD="$CMD org.sonarsource.scanner.maven:sonar-maven-plugin:sonar"
@@ -93,8 +93,9 @@ jobs:
           path: target/site/jacoco/
       - name: Télécharger le dockerfile
         run: |
+          echo 
           echo "Récupération du docker file depuis ..."
-          curl -o Dockerfile from https://github.com/Lymytz/ci_actions/blob/main/dockerFiles/Dockerfile
+          curl -sSL -o Dockerfile https://raw.githubusercontent.com/Lymytz/ci_actions/main/dockerFiles/Dockerfile
       - name: Vérification du statut du téléchargement
         run: |
           if ! [[ -f ".Dokerfile" ]]; then
