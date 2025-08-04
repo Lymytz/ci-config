@@ -95,7 +95,7 @@ jobs:
         run: |
           echo 
           echo "Récupération du docker file depuis ..."
-          curl -sSL -o Dockerfile https://raw.githubusercontent.com/Lymytz/ci_actions/main/dockerFiles/Dockerfile
+          curl -sSL -o Dockerfile https://raw.githubusercontent.com/Lymytz/ci_actions/refs/heads/main/dockerFiles/Dockerfile
       - name: Vérification du statut du téléchargement
         run: |
           if [ ! -f Dockerfile ]; then
