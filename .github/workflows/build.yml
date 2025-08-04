@@ -74,7 +74,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           PROJECT_KEY: ${{ inputs.project_key }}
           PROJECT_NAME: ${{ inputs.project_name }}
-          TAG: ${{ github.head_ref || github.ref_name || 'latest' }}
+          TAG: ${{ github.head_ref != '' && github.head_ref || github.ref_name || 'latest' }}
         run: |
           CMD="mvn clean install"
           if [[ -n "$PROJECT_KEY" ]]; then
