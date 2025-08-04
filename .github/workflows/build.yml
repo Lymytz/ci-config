@@ -106,8 +106,8 @@ jobs:
       - name: Build Image
         run: |
           echo "Construction de l'image docker"
-          if [[ -f ".DokerFile" && ${{github}} ]]; then
-            Docker build -t ${{inputs.project_key}}:${{github.sha}}
+          if [[ -f "DokerFile" ]]; then
+            Docker build -t ${{inputs.project_key}}:${{github.head_ref}}
           else
             echo "Pas de docker file détecté... construction de l'image ignoré"
             exit 1
