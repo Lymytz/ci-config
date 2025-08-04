@@ -28,6 +28,9 @@ on:
       project_name:
         type: string
         required: false
+      is_release:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -53,7 +56,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: Lymytz/ci_config/.github/actions/maven-compiler@v2
+      - uses: Lymytz/ci_actions/maven-compiler@v2
         with:
           java_version: ${{ inputs.java_version }}
           github_user_name: ${{ secrets.GITHUB_USER }}
@@ -81,13 +84,22 @@ jobs:
       - name: Upload test results (Junit)
         uses: actions/upload-artifact@v4
         with:
-            name: junit-result
-            path: target/surefire-reports/
+          name: junit-result
+          path: target/surefire-reports/
       - name: Upload Coverage results (jacoco)
         uses: actions/upload-artifact@v4
         with:
-            name: coverage-report
-            path: target/site/jacoco/
+          name: coverage-report
+          path: target/site/jacoco/
+      - name: Télécharger le dockerfile
+        run: |
+          echo "Récupération du docker file depuis ..."
+          curl -o Dockerfile from https://github.com/Lymytz/ci_actions/blob/main/dockerFiles/Dockerfile
+      - name: Vérification du statut du téléchargement
+        run: |
+          if ! [[ -f ".Dokerfile" ]]; then
+            echo "Aucun fichier docker file n'a pu ếtre técléchargé"
+          fi
       - name: Build Image
         run: |
           echo "Construction de l'image docker"
