@@ -117,10 +117,9 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          TAG="${{ github.ref_name || github.head_ref || 'latest' }}"
           echo "Construction de l'image docker"
           if [[ -f Dockerfile ]]; then            
-            docker build -t $IMAGE_NAME:$TAG .
+            docker build -t $IMAGE_NAME:$IMAGE_TAG .
           else
             echo "Pas de docker file détecté... construction de l'image ignoré"
             exit 1
@@ -138,8 +137,8 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          source: $FILE_NAME
-          target: "~/$FILE_NAME"
+          source: ${{env.FILE_NAME}}
+          target: "~/${{env.FILE_NAME}}"
           port: '1910'
       - name: Deploy
         run: |
