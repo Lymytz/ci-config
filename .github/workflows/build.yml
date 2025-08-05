@@ -141,9 +141,31 @@ jobs:
           target: "~/"
           port: '1910'
           debug: 'true'
-      - name: Deploy
+      - name: Pre-Deploy
         run: |
-          echo "Déploiement sur la VM..."
+          echo "Préparation du déploiement sur l'hôte ${{ secrets.VM_HOST }}"
+      - name: Déploiement de l'application
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: '1910'
+          script: |
+            echo "Chargement de l'image docker"
+            sudo docker load -i ~/${{env.FILE_NAME}}
+            
+            echo "Nettoyage des anciens conteneurs...."
+            sudo docker stop ${{env.IMAGE_NAME}}-${{env.IMAGE_TAG}} || true
+            sudo docker rm ${{env.IMAGE_NAME}}-${{env.IMAGE_TAG}} || true
+            
+            echo "lancement du conteneur"
+            sudo docker run -d --name ${{env.IMAGE_NAME}} ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
+            
+            echo "conteneur actif"
+            sudo docker ps
+            
+
   packaging:
     needs: test
     runs-on: ubuntu-latest
