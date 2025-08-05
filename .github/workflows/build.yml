@@ -160,7 +160,7 @@ jobs:
             sudo docker rm ${{env.IMAGE_NAME}}-${{env.IMAGE_TAG}} || true
             
             echo "lancement du conteneur"
-            sudo docker run -d --name ${{env.IMAGE_NAME}} ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
+            sudo docker run -d --name -p 8090:8090 ${{env.IMAGE_NAME}} ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
             
             echo "conteneur actif"
             sudo docker ps
