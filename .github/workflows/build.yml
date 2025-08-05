@@ -61,6 +61,10 @@ jobs:
           fi
   test:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: "${{ inputs.project_key }}"
+      TAG: "${{ github.ref_name || github.head_ref || 'latest' }}"
+      FILE_NAME: "${{env.IMAGE_NAME}}-${{env.TAG}}.tar"
     steps:
       - uses: Lymytz/ci_actions/maven-compiler@v2
         with:
@@ -112,18 +116,15 @@ jobs:
       - name: Build Image
         run: |
           TAG="${{ github.ref_name || github.head_ref || 'latest' }}"
-          echo "Construction de l'image docker TAG= $TAG"
+          echo "Construction de l'image docker"
           if [[ -f Dockerfile ]]; then            
-            docker build -t ${{inputs.project_key}}:$TAG .
+            docker build -t $IMAGE_NAME:$TAG .
           else
             echo "Pas de docker file détecté... construction de l'image ignoré"
             exit 1
           fi
       - name: Export docker image
-        run: |
-          IMAGE_NAME="${{ inputs.project_key }}"
-          IMAGE_TAG="${{ github.ref_name || github.head_ref || 'latest' }}"
-          FILE_NAME="${IMAGE_NAME}-${IMAGE_TAG}.tar"
+        run: |          
           echo "Sauvegarde de l'image $IMAGE_NAME:$IMAGE_TAG dans $FILE_NAME"
           docker save -o "$FILE_NAME" "$IMAGE_NAME:$IMAGE_TAG"
       - run: ls -lh
@@ -135,8 +136,8 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          source: "monapp.tar"
-          target: "~/monapp.tar"
+          source: $FILE_NAME
+          target: "~/$FILE_NAME"
           port: '1910'
       - name: Deploy
         run: |
@@ -147,7 +148,6 @@ jobs:
     if: ${{ inputs.packaging && inputs.packaging == true && github.refs == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v3
-
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -162,7 +162,7 @@ jobs:
           sed -i "s|{{USERNAME}}|alabienG|g" $HOME/.m2/settings.xml
           cat $HOME/.m2/settings.xml
 
-      - name: Extratc version
+      - name: Extract version
         id: extract_version
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
