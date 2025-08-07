@@ -45,10 +45,10 @@ jobs:
       - name: Pre-Compile # Préparation du maven-settings (download | creation)
         run: |
           echo " récupération du template settings.xml"
-          curl -sSL --fail -o settings.xml https://raw.githubusercontent.com/Lymytz/ci_actions/main/settings.xml
+          curl -sSL --fail -o settings_template.xml https://raw.githubusercontent.com/Lymytz/ci_actions/main/settings.xml
       - name: Apply credential
         run: |
-          sed "s|__USERNAME__|${{inputs.repository_username}}|g" settings.xml
+          sed "s|__USERNAME__|${{inputs.repository_username}}|g" settings_template.xml > settings.xml
           sed "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
       - name: Move settings.xml
         run: |
