@@ -123,6 +123,10 @@ jobs:
   BuildImage:
     needs: QualityCheck
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Build docker image"
   Deploy:
     needs: BuildImage
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploy application"
