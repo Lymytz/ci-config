@@ -1,0 +1,126 @@
+name: lymytz_ci_template
+
+on:
+  workflow_call:
+    secrets:
+      GITHUB_USER:
+        required: true
+      GITHUB_TOKEN:
+        required: true
+      SONAR_TOKEN:
+        required: false
+      SONAR_HOST_URL:
+        required: false
+    inputs:
+      java_version:
+        type: string
+        required: true
+      fat_jar_name:
+        type: string
+        required: false
+        default: 'app'
+      compile_opt:
+        type: string
+        required: false
+      project_key:
+        type: string
+        required: false
+      project_name:
+        type: string
+        required: false
+jobs:
+  Compile:
+    name: Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pre-Compile # Préparation du maven-settings (download | creation)
+        run: |
+          echo " récupération du template setting xml"
+          curl -sSL --fail -o settings.xsl https://raw.githubusercontent.com/Lymytz/ci_actions/main/settings.xml
+      - name: Apply credential
+        run: |
+          sed "s|__USERNAME__|${{secrets.GITHUB_USER}}|g" settings.xml
+          sed "s|__PASSWORD__|${{secrets.GITHUB_TOKEN}}|g" settings.xml
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{inputs.java_version}}
+          distribution: temurin
+      - name: Compilation
+        run: |
+          echo "Compilation avec la distribution"
+          echo java -version
+          mvn compile ${{inputs.compile_opt}}
+      - name: Upload compile class
+        uses: actions/upload-artifact@v4
+        with:
+          name: target-classes
+          path: target/
+  UnitTest:
+    needs: Compile
+    name: Test Unitaire
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: target-classes
+          path: target/
+      - name: Run test with coverage
+        run: |
+          mvn test jacoco:report -Dmaven.test.skip=false -Dmaven.compile.skip=true
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-and-tests
+          path:
+            target/surefire-reports
+            target/site/jacoco/jacoco.xml
+  IntegrationTest:
+    needs: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dowload compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: target-classes
+          path: target/
+      - name: Run tests
+        run: |
+          mvn verify -Pintegration -Dmaven.compile.skip=true
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        with:
+          path: target/
+
+
+  QualityCheck:  # Lancer l'analyse sonar, envoyer les rapports TU à sonar
+    needs:
+      - IntegrationTest
+      - UnitTest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-and-tests
+      - name: Sonar analysis
+        env:
+          SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+          SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+          PROJECT_KEY: ${{inputs.project_key}}
+        run: |
+          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+          -Dsonar.host.url=$SONAR_HOST_URL
+          -Dsonar.projectKey=$PROJECT_KEY
+          -Dsonar.projectName=$PROJECT_NAME
+          -Dmaven.test.skip=true
+  BuildImage:
+    needs: QualityCheck
+    runs-on: ubuntu-latest
+  Deploy:
+    needs: BuildImage
+    runs-on: ubuntu-latest
