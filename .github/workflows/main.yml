@@ -53,7 +53,8 @@ jobs:
       - name: Move settings.xml
         run: |
           mkdir -p ~/.m2
-          mv settings.xml ~/.m2
+          ls -al .
+          mv settings.xml ~/.m2/
         shell: bash
       - run: ls -la
       - uses: actions/setup-java@v4
