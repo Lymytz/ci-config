@@ -9,6 +9,12 @@ on:
         required: false
       SONAR_HOST_URL:
         required: false
+      VM_HOST:
+        required: false
+      VM_SSH_KEY:
+        required: false
+      VM_USER:
+        required: false
     inputs:
       repository_username:
         type: string
