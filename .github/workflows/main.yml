@@ -202,10 +202,13 @@ jobs:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
           SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
           PROJECT_KEY: ${{inputs.project_key}}
+          PROJECT_NAME: ${{ inputs.project_name }}
         run: |
-          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=aggregate-report/target/site/jacoco-aggregate/jacoco.xml
-          -Dsonar.host.url=$SONAR_HOST_URL
-          -Dsonar.projectKey=$PROJECT_KEY
+          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=aggregate-report/target/site/jacoco-aggregate/jacoco.xml \
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.projectKey=$PROJECT_KEY  \
+          -Dsonar.projectName=$PROJECT_NAME \
           -Dmaven.test.skip=true
   BuildImage:
     needs: QualityCheck
