@@ -3,8 +3,6 @@ name: lymytz_ci_template
 on:
   workflow_call:
     secrets:
-      REPOSITORY_USER:
-        required: true
       REPOSITORY_TOKEN:
         required: true
       SONAR_TOKEN:
@@ -12,6 +10,10 @@ on:
       SONAR_HOST_URL:
         required: false
     inputs:
+      repository_username:
+        type: string
+        required: false
+        default: ${{github.repository_owner}}
       java_version:
         type: string
         required: true
@@ -40,7 +42,7 @@ jobs:
           curl -sSL --fail -o settings.xsl https://raw.githubusercontent.com/Lymytz/ci_actions/main/settings.xml
       - name: Apply credential
         run: |
-          sed "s|__USERNAME__|${{secrets.REPOSITORY_USER}}|g" settings.xml
+          sed "s|__USERNAME__|${{inputs.repository_username}}|g" settings.xml
           sed "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
       - uses: actions/setup-java@v4
         with:
