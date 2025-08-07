@@ -129,11 +129,6 @@ jobs:
           distribution: 'temurin'
           java-version: ${{inputs.java_version}}
           cache: 'maven'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{inputs.java_version}}
-          cache: 'maven'
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -172,6 +167,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{inputs.java_version}}
+          cache: 'maven'
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: "$HOME/.m2/repository"
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+      - name: Pre-Test
+        run: |
+          echo " récupération du template settings.xml"
+          curl -sSL --fail -o settings_template.xml https://raw.githubusercontent.com/Lymytz/ci_actions/main/settings.xml
+          sed "s|__USERNAME__|${{inputs.repository_username}}|g" settings_template.xml > settings.xml
+          sed -i "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
+          mkdir -p "$HOME/.m2"
+          mv --force settings.xml "$HOME/.m2/"
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
