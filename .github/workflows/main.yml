@@ -52,9 +52,11 @@ jobs:
           sed -i "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
       - name: Move settings.xml
         run: |
-          mkdir -p ~/.m2
-          ls -al .
-          mv settings.xml ~/.m2/
+          echo "HOME is $HOME"
+          mkdir -p "$HOME/.m2"
+          ls -al "$HOME/.m2"
+          mv settings.xml "$HOME/.m2/"
+          ls -al "$HOME/.m2"
         shell: bash
       - run: ls -la
       - uses: actions/setup-java@v4
@@ -65,7 +67,7 @@ jobs:
         run: |
           echo "Compilation avec la distribution"
           echo java -version
-          mvn compile ${{inputs.compile_opt}}
+          mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" compile
       - name: Upload compile class
         uses: actions/upload-artifact@v4
         with:
