@@ -82,11 +82,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: compiled-classes
-          path: ./compiled
+          path: .
       - name: Run test with coverage
         run: |
-          ls -l compiled-classes
-          mvn test jacoco:report -Dmaven.test.skip=false -Dmaven.compile.skip=true
+          mvn test -Dmaven.test.skip=false -Dmaven.main.skip=true
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         with:
@@ -103,7 +102,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: compiled-classes
-          path: ./compiled
+          path: .
       - name: Run tests
         run: |
           mvn verify -Pintegration -Dmaven.compile.skip=true
