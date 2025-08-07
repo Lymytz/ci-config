@@ -30,6 +30,7 @@ on:
       compile_opt:
         type: string
         required: false
+        default: ''
       project_key:
         type: string
         required: false
@@ -54,8 +55,9 @@ jobs:
         run: |
           echo "HOME is $HOME"
           mkdir -p "$HOME/.m2"
-          ls -al "$HOME/.m2"
+          ls -al "$HOME/"
           mv settings.xml "$HOME/.m2/"
+          ls -al "$HOME/"
           ls -al "$HOME/.m2"
         shell: bash
       - run: ls -la
@@ -66,7 +68,7 @@ jobs:
       - name: Compilation
         run: |
           echo "Compilation avec la distribution"
-          echo java -version
+          java -version
           mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" compile
       - name: Upload compile class
         uses: actions/upload-artifact@v4
