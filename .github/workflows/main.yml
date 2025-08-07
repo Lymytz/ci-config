@@ -50,6 +50,11 @@ jobs:
         run: |
           sed "s|__USERNAME__|${{inputs.repository_username}}|g" settings.xml
           sed "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
+      - name: Move settings.xml
+        run: |
+          mkdir ~/.m2/
+          mv settings.xml ~/.m2/
+      - run: ls -l
       - uses: actions/setup-java@v4
         with:
           java-version: ${{inputs.java_version}}
