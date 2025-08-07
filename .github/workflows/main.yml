@@ -52,8 +52,8 @@ jobs:
           sed "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
       - name: Move settings.xml
         run: |
-          mkdir -p ~/.m2/
-          mv settings.xml ~/.m2/
+          mkdir -p ~/.m2
+          mv settings.xml ~/.m2
         shell: bash
       - run: ls -la
       - uses: actions/setup-java@v4
