@@ -49,7 +49,7 @@ jobs:
       - name: Apply credential
         run: |
           sed "s|__USERNAME__|${{inputs.repository_username}}|g" settings_template.xml > settings.xml
-          sed "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
+          sed -i "s|__PASSWORD__|${{secrets.REPOSITORY_TOKEN}}|g" settings.xml
       - name: Move settings.xml
         run: |
           mkdir -p ~/.m2
