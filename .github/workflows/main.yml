@@ -59,10 +59,7 @@ jobs:
         run: |
           echo "HOME is $HOME"
           mkdir -p "$HOME/.m2"
-          ls -al "$HOME/"
-          mv settings.xml "$HOME/.m2/"
-          ls -al "$HOME/"
-          ls -al "$HOME/.m2"
+          mv --force settings.xml "$HOME/.m2/"
         shell: bash
       - run: ls -la
       - name: Compilation
@@ -73,8 +70,8 @@ jobs:
       - name: Upload compile class
         uses: actions/upload-artifact@v4
         with:
-          name: target-classes
-          path: target/
+          name: compiled-classes
+          path: '**/target/{classes, test-classes}'
   UnitTest:
     needs: Compile
     name: Test Unitaire
@@ -84,10 +81,11 @@ jobs:
       - name: Download compiled classes
         uses: actions/download-artifact@v4
         with:
-          name: target-classes
-          path: target/
+          name: compiled-classes
+          path: ./compiled
       - name: Run test with coverage
         run: |
+          ls -l compiled-classes
           mvn test jacoco:report -Dmaven.test.skip=false -Dmaven.compile.skip=true
       - name: Upload test reports
         uses: actions/upload-artifact@v4
@@ -104,8 +102,8 @@ jobs:
       - name: Dowload compiled classes
         uses: actions/download-artifact@v4
         with:
-          name: target-classes
-          path: target/
+          name: compiled-classes
+          path: ./compiled
       - name: Run tests
         run: |
           mvn verify -Pintegration -Dmaven.compile.skip=true
