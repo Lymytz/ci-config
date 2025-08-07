@@ -47,7 +47,7 @@ jobs:
         with:
           java-version: ${{inputs.java_version}}
           distribution: temurin
-      - name: Pre-Compile # Préparation du maven-settings (download | creation)
+      - name: Pre-Compile # Préparation du maven-settings (download & update credential)
         run: |
           echo " récupération du template settings.xml"
           curl -sSL --fail -o settings_template.xml https://raw.githubusercontent.com/Lymytz/ci_actions/main/settings.xml
@@ -61,7 +61,6 @@ jobs:
           mkdir -p "$HOME/.m2"
           mv --force settings.xml "$HOME/.m2/"
         shell: bash
-      - run: ls -la
       - name: Compilation
         run: |
           echo "Compilation avec la distribution"
@@ -72,6 +71,13 @@ jobs:
         with:
           name: compiled-classes
           path: '**/target/classes'
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: "$HOME/.m2/repository"
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
   UnitTest:
     needs: Compile
     name: Test Unitaire
@@ -83,6 +89,14 @@ jobs:
           distribution: 'temurin'
           java-version: ${{inputs.java_version}}
           cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: "$HOME/.m2/repository"
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
       - name: Download compiled classes
         uses: actions/download-artifact@v4
         with:
