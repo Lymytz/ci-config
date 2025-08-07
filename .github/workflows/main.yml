@@ -112,14 +112,13 @@ jobs:
           path: .
       - name: Run test with coverage
         run: |
-          mvn test -Dmaven.test.skip=false -Dmaven.main.skip=true
+          mvn verify -Dmaven.test.skip=false -Dmaven.main.skip=true
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-and-tests
+          name: report-coverage
           path:
-            target/surefire-reports
-            target/site/jacoco/jacoco.xml
+            aggregate-report/target/
   IntegrationTest:
     needs: Compile
     runs-on: ubuntu-latest
@@ -162,7 +161,8 @@ jobs:
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         with:
-          path: target/
+          name: report-coverage
+          path: aggregate-report/target/
 
 
   QualityCheck:  # Lancer l'analyse sonar, envoyer les rapports TU à sonar
@@ -175,14 +175,15 @@ jobs:
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
-          name: coverage-and-tests
+          name: report-coverage
+          path: .
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
           SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
           PROJECT_KEY: ${{inputs.project_key}}
         run: |
-          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=aggregate-report/target/site/jacoco-aggregate/jacoco.xml"
           -Dsonar.host.url=$SONAR_HOST_URL
           -Dsonar.projectKey=$PROJECT_KEY
           -Dsonar.projectName=$PROJECT_NAME
