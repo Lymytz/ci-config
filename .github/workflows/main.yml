@@ -192,6 +192,11 @@ jobs:
         with:
           name: report-integration-coverage
           path: .
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-classes
+          path: .
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
