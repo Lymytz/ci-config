@@ -200,7 +200,7 @@ jobs:
       - name: Check jacoco report
         run: |
           find . -name jacoco.xml
-          cat aggregate-report/target/site/jacoco-aggregate/jacoco.xml || echo "Jacoco report not found"
+          cat site/jacoco-aggregate/jacoco.xml || echo "Jacoco report not found"
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
