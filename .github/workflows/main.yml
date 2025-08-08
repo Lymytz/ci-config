@@ -209,10 +209,12 @@ jobs:
         run: |
           mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=$(pwd)/site/jacoco-aggregate/jacoco.xml \
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.qualitygate.wait=true \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.projectKey=$PROJECT_KEY  \
           -Dsonar.projectName=$PROJECT_NAME \
           -Dmaven.test.skip=true
+        continue-on-error: false
   BuildImage:
     needs: QualityCheck
     runs-on: ubuntu-latest
