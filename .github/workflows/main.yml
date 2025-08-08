@@ -200,9 +200,6 @@ jobs:
       - name: Check jacoco report
         run: |
           find . -name jacoco.xml
-      - name: Display tree
-        run: |
-          ls -lR | find -name *.class
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
@@ -210,7 +207,7 @@ jobs:
           PROJECT_KEY: ${{inputs.project_key}}
           PROJECT_NAME: ${{ inputs.project_name }}
         run: |
-          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=site/jacoco-aggregate/jacoco.xml \
+          mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=$(pwd)/site/jacoco-aggregate/jacoco.xml \
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.projectKey=$PROJECT_KEY  \
