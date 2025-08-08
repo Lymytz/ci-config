@@ -119,7 +119,7 @@ jobs:
           name: report-coverage
           path:
             aggregate-report/target/
-  IntegrationTest:
+  IntegrationTest:  # requiere la présence d'un profile intégration dans le pom
     needs: Compile
     runs-on: ubuntu-latest
     steps:
@@ -190,13 +190,17 @@ jobs:
       - name: Download reports
         uses: actions/download-artifact@v4
         with:
-          name: report-integration-coverage
+          name: report-coverage
           path: .
       - name: Download compiled classes
         uses: actions/download-artifact@v4
         with:
           name: compiled-classes
           path: .
+      - name: Check jacoco report
+        run: |
+          find . -name jacoco.xml
+          cat aggregate-report/target/site/jacoco-aggregate/jacoco.xml || echo "Jacoco report not found"
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
