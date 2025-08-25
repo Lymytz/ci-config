@@ -65,7 +65,7 @@ jobs:
         run: |
           echo "Compilation avec la distribution"
           java -version
-          mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" -DskipTests compile
+          mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" -DskipTests package
       - run: ls -l ./app
       - run: ls -l ./app/target
       - name: Upload compile class
@@ -77,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'app-fat-jar'
-          path: app/target/*.jar
+          path: ./app/target/*.jar
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
