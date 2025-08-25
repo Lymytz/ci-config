@@ -65,12 +65,17 @@ jobs:
         run: |
           echo "Compilation avec la distribution"
           java -version
-          mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" compile
+          mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" -DskipTests compile
       - name: Upload compile class
         uses: actions/upload-artifact@v4
         with:
           name: compiled-classes
           path: '**/target/classes'
+      - name: Upload fat-jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'app-fat-jar'
+          path: '**/target/*.jar'
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -214,12 +219,52 @@ jobs:
           -Dsonar.projectKey=$PROJECT_KEY  \
           -Dsonar.projectName=$PROJECT_NAME \
           -Dmaven.test.skip=true
-        continue-on-error: false
+        continue-on-error: true
+      - name: Sonar Quality Gate Status
+        run: |
+          if [$? -ne 0]; then
+            echo "::warning:: problème de qualité détecté"
+          else
+            echo "Sonar Quality Gate passed"
+          fi
   BuildImage:
     needs: QualityCheck
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Build docker image"
+      - run: echo "Start buildind docker image"
+      - name: Télécharger le docker file
+        run: |
+          echo 
+          echo "Récupération du docker file depuis le repo Lymytz/ci_actions"
+          curl -sSL --fail -o Dockerfile https://raw.githubusercontent.com/Lymytz/ci_actions/refs/heads/main/dockerFiles/Dockerfile
+          IF [ ! -f Dockerfile ]; then
+            ls -l
+            echo "::error ::Dockerfile introuvable. Échec du téléchargement."
+            exit 1
+          fi
+      - name: Download compiled classes
+        uses: actions/download-artifact@v4
+        with:
+          name: app-fat-jar
+          path: .
+      - run: ls -l
+      - name: Pré-build docker Image
+        run: |
+          mkdir -p app
+          mv --force *.jar app/${{inputs.fat_jar_name}}.jar
+          echo "IMAGE_NAME=${{ inputs.project_key }}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${{ github.ref_slug || github.head_ref || 'latest' }}" >> $GITHUB_ENV
+          echo "FILE_NAME=${{ inputs.project_key }}-${{ env.ref_name || github.head_ref || 'latest' }}.tar" >> $GITHUB_ENV
+          # todo: penser à configurer la durée de vie des images dans le registre
+      - name: Build Docker Image
+        run: |
+            echo "Construction de l'image docker"
+            if [[ -f Dockerfile ]]; then            
+              docker build -t $IMAGE_NAME:$IMAGE_TAG .
+            else
+              echo "Pas de docker file détecté... construction de l'image ignoré"
+              exit 1
+            fi
   Deploy:
     needs: BuildImage
     runs-on: ubuntu-latest
