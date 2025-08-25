@@ -66,7 +66,7 @@ jobs:
           echo "Compilation avec la distribution"
           java -version
           mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" -DskipTests compile
-      - run: ls -l {{github.workspace}}
+      - run: ls -l ./
       - name: Upload compile class
         uses: actions/upload-artifact@v4
         with:
