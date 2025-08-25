@@ -66,6 +66,7 @@ jobs:
           echo "Compilation avec la distribution"
           java -version
           mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" -DskipTests compile
+      - run: ls -l {{github.workspace}}
       - name: Upload compile class
         uses: actions/upload-artifact@v4
         with:
@@ -231,7 +232,7 @@ jobs:
             echo "Sonar Quality Gate passed"
           fi
   BuildImage:
-    needs: QualityCheck
+    needs: Compile
     runs-on: ubuntu-latest
     steps:
       - run: echo "Start buildind docker image"
