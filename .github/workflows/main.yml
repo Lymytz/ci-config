@@ -273,14 +273,24 @@ jobs:
               echo "Pas de docker file detect... construction de l'image ignoré"
               exit 1
             fi
-      - name: Export docker image
-        run: |          
-          echo "Sauvegarde de l'image $IMAGE_NAME:$IMAGE_TAG dans $FILE_NAME"
-          docker save -o "$FILE_NAME" "$IMAGE_NAME:$IMAGE_TAG"
       - name: Vérification de l'image docker
         run: docker images
+      - run: echo "Export docker image"
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: JAR_FILE=${{inputs.fat_jar_name}}.jar
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{inputs.project_key}}:${{ github.ref_slug }}
+            ghcr.io/${{ github.repository_owner }}/${{inputs.project_key}}:latest
+
   Deploy:
     needs: BuildImage
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deploy application"
+      - run: echo "Deploy application..."
+      - name: Créer le contexte VM
+        run: |
+          docker context create vm --docker "host=ssh://${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}"
+
