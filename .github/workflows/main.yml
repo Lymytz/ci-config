@@ -276,14 +276,23 @@ jobs:
       - name: Vérification de l'image docker
         run: docker images
       - run: echo "Export docker image"
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ inputs.project_key }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           build-args: JAR_FILE=${{inputs.fat_jar_name}}.jar
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/${{inputs.project_key}}:${{ github.ref_slug }}
-            ghcr.io/${{ github.repository_owner }}/${{inputs.project_key}}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   Deploy:
     needs: BuildImage
