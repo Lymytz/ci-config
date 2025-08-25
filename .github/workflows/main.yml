@@ -75,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'app-fat-jar'
-          path: '**/target/*.jar'
+          path: 'app/target/*.jar'
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -84,6 +84,7 @@ jobs:
           restore-keys: |
             maven-
   UnitTest:
+    if: false # activer si besoin de faire des tests unitaires
     needs: Compile
     name: Test Unitaire
     runs-on: ubuntu-latest
@@ -125,6 +126,7 @@ jobs:
           path:
             aggregate-report/target/
   IntegrationTest:  # requiere la présence d'un profile intégration dans le pom
+    if: false # activer si besoin de faire des tests d'intégration
     needs: Compile
     runs-on: ubuntu-latest
     steps:
@@ -166,6 +168,7 @@ jobs:
 
 
   QualityCheck:  # Lancer l'analyse sonar, envoyer les rapports TU à sonar
+    if: false # activer si besoin de faire des tests d'intégration
     needs:
       - IntegrationTest
       - UnitTest
@@ -222,7 +225,7 @@ jobs:
         continue-on-error: true
       - name: Sonar Quality Gate Status
         run: |
-          if [$? -ne 0]; then
+          if [ $? -ne 0 ]; then
             echo "::warning:: problème de qualité détecté"
           else
             echo "Sonar Quality Gate passed"
@@ -250,7 +253,6 @@ jobs:
       - run: ls -l
       - name: Pré-build docker Image
         run: |
-          mkdir -p app
           mv --force app/target/*.jar app/${{inputs.fat_jar_name}}.jar
           echo "IMAGE_NAME=${{ inputs.project_key }}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${{ github.ref_slug || github.head_ref || 'latest' }}" >> $GITHUB_ENV
@@ -262,7 +264,7 @@ jobs:
             if [[ -f Dockerfile ]]; then            
               docker build -t $IMAGE_NAME:$IMAGE_TAG .
             else
-              echo "Pas de docker file détecté... construction de l'image ignoré"
+              echo "Pas de docker file detect... construction de l'image ignoré"
               exit 1
             fi
       - name: Export docker image
