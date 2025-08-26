@@ -303,7 +303,7 @@ jobs:
           docker --context vm login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
       - name: Pull and Run the image
         run: |
-            IMAGE=ghcr.io/${{ github.repository_owner }}/${{ inputs.project_key }}:${{ github.ref_name || github.head_ref || 'latest' }}
+            IMAGE=ghcr.io/${{ github.repository_owner }}/${{ inputs.project_key }}:${{needs.BuildImage.outputs.IMAGE_TAG || 'latest'}}
             docker --context vm pull $IMAGE
             # Arrêter et supprimer le conteneur existant s'il existe
             docker --context vm rm -f ${{ inputs.project_key }} || echo "no container to remove"
