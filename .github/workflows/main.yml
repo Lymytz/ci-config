@@ -158,7 +158,7 @@ jobs:
           mkdir -p "$HOME/.m2"
           mv --force settings.xml "$HOME/.m2/"
         shell: bash
-      - name: Dowload compiled classes
+      - name: Download compiled classes
         uses: actions/download-artifact@v4
         with:
           name: compiled-classes
@@ -286,9 +286,26 @@ jobs:
   Deploy:
     needs: BuildImage
     runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/develop' || github.ref=='refs/heads/main') && secrets.VM_HOST != '' && secrets.VM_USER != '' && secrets.VM_SSH_KEY != ''
     steps:
       - run: echo "Deploy application..."
-      - name: Créer le contexte VM
-        run: |
-          docker context create vm --docker "host=ssh://${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}"
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VM_SSH_KEY }}
 
+      - name: Créer le docker context pour la VM
+        run: |
+          docker context create vm --docker "host=ssh://${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:${{secrets.VM_PORT}}" || echo "le context existe déjà"
+          docker context use vm
+      - name: Login to GHCR (on VM via docker context)
+        run: |
+          docker --context vm login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
+      - name: Pull and Run the image
+        run: |
+            IMAGE=ghcr.io/${{ github.repository_owner }}/${{ inputs.project_key }}:${{ github.ref_name || github.head_ref || 'latest' }}
+            docker --context vm pull $IMAGE
+            # Arrêter et supprimer le conteneur existant s'il existe
+            docker --context vm rm -f ${{ inputs.project_key }} || echo "no container to remove"
+            # Démarrer un nouveau conteneur
+            docker --context vm run -d --name ${{ inputs.project_key }} -p 8090:8090 $IMAGE
