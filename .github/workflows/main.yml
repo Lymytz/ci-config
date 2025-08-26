@@ -286,7 +286,7 @@ jobs:
   Deploy:
     needs: BuildImage
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/develop' || github.ref=='refs/heads/main') && secrets.VM_HOST != '' && secrets.VM_USER != '' && secrets.VM_SSH_KEY != ''
+    if: github.ref == 'refs/heads/develop' || github.ref=='refs/heads/main'
     steps:
       - run: echo "Deploy application..."
       - name: Configure SSH
