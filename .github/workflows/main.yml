@@ -17,6 +17,8 @@ on:
         required: false
       GHCR_PAT:
         required: false
+      VM_PORT:
+        required: false
     inputs:
       repository_username:
         type: string
