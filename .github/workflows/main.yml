@@ -297,7 +297,14 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VM_SSH_KEY }}
-
+      - name: Add VM host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.VM_PORT }}" "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Test SSH connectivity
+        run: |
+          ssh -p "${{ secrets.VM_PORT }}" -o BatchMode=yes -o StrictHostKeyChecking=yes "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" "echo 'SSH OK'"
       - name: Créer le docker context pour la VM
         run: |
           docker context create vm --docker "host=ssh://${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}:${{secrets.VM_PORT}}" || echo "le context existe déjà"
