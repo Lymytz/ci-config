@@ -74,8 +74,6 @@ jobs:
           echo "Compilation avec la distribution"
           java -version
           mvn ${{inputs.compile_opt}} --settings "$HOME/.m2/settings.xml" -DskipTests package
-      - run: ls -l ./app
-      - run: ls -l ./app/target
       - name: Upload compile class
         uses: actions/upload-artifact@v4
         with:
@@ -94,7 +92,6 @@ jobs:
           restore-keys: |
             maven-
   UnitTest:
-    if: false # activer si besoin de faire des tests unitaires
     needs: Compile
     name: Test Unitaire
     runs-on: ubuntu-latest
