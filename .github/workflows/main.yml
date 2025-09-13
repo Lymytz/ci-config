@@ -79,11 +79,13 @@ jobs:
         with:
           name: compiled-classes
           path: '**/target/classes'
+          retention-days: 1
       - name: Upload fat-jar
         uses: actions/upload-artifact@v4
         with:
           name: 'app-fat-jar'
           path: ${{inputs.app_module}}/target/*.jar
+          retention-days: 1
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -130,6 +132,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: report-coverage
+          retention-days: 1
           path:
             aggregate-report/target/
   IntegrationTest:  # requiere la présence d'un profile intégration dans le pom
@@ -172,6 +175,7 @@ jobs:
         with:
           name: report-integration-coverage
           path: aggregate-report/target/
+          retention-days: 1
 
 
   QualityCheck:  # Lancer l'analyse sonar, envoyer les rapports TU à sonar
