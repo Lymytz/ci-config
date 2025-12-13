@@ -41,10 +41,15 @@ on:
         default: ''
       project_key:
         type: string
-        required: false
+        required: true
       project_name:
         type: string
         required: false
+      # On utilise `project_key` comme clé dans l'inventaire distant (inventory.yml)
+      app_port_key:
+        type: string
+        required: false
+        default: "server.port"
 jobs:
   Compile:
     name: Compilation
@@ -313,12 +318,35 @@ jobs:
       - name: Login to GHCR (on VM via docker context)
         run: |
           docker --context vm login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
+      - uses: actions/checkout@v4
       - name: Pull and Run the image
         run: |
-            IMAGE=ghcr.io/${{ github.repository_owner }}/${{ inputs.project_key }}:${{needs.BuildImage.outputs.IMAGE_TAG || 'latest'}}
-            IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')   # <-- forcer lowercase
-            docker --context vm pull $IMAGE
-            # Arrêter et supprimer le conteneur existant s'il existe
-            docker --context vm rm -f ${{ inputs.project_key }} || echo "no container to remove"
-            # Démarrer un nouveau conteneur
-            docker --context vm run -d --name ${{ inputs.project_key }} -p 8090:8090 $IMAGE
+          # Télécharger le fichier d'inventaire depuis le repository central
+          INVENTORY_URL="https://raw.githubusercontent.com/Lymytz/ci_actions/main/inventory.yml"
+          INVENTORY_FILE="inventory.yml"
+          PORT=""
+          if curl -sSL --fail -o "$INVENTORY_FILE.tmp" "$INVENTORY_URL"; then
+            mv "$INVENTORY_FILE.tmp" "$INVENTORY_FILE"
+          else
+            echo "::warning:: impossible de récupérer l'inventaire depuis $INVENTORY_URL, tentative locale" 
+          fi
+          if [ -f "$INVENTORY_FILE" ]; then
+            PORT=$(grep -E "^${{ inputs.project_key }}=" "$INVENTORY_FILE" | head -n1 | cut -d'=' -f2- | tr -d ' ')
+          fi
+          if [ -z "$PORT" ]; then
+            echo "::warning:: port introuvable dans $INVENTORY_FILE pour la clé '${{ inputs.application_name }}' — fallback 8090"
+            PORT=8090
+          fi
+
+          APP_ENV_NAME=$(echo "${{ inputs.app_port_key }}" | tr '.' '_' | tr '[:lower:]' '[:upper:]')
+
+          IMAGE=ghcr.io/${{ github.repository_owner }}/${{ inputs.project_key }}:${{needs.BuildImage.outputs.IMAGE_TAG || 'latest'}}
+          IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')   # <-- forcer lowercase
+          docker --context vm pull $IMAGE
+          # Arrêter et supprimer le conteneur existant s'il existe
+          docker --context vm rm -f ${{ inputs.project_key }} || echo "no container to remove"
+          # Démarrer un nouveau conteneur en mappant le port trouvé
+          docker --context vm run -d --name ${{ inputs.project_key }} -p ${PORT}:${PORT} \
+            -e LYMYTZ_DB_PASSWORD="${{ secrets.LYMYTZ_DB_PASSWORD }}" \
+            -e "${APP_ENV_NAME}=${PORT}" \
+            $IMAGE
