@@ -19,6 +19,8 @@ on:
         required: false
       VM_PORT:
         required: false
+      LYMYTZ_DB_PASSWORD:
+        required: false
     inputs:
       repository_username:
         type: string
