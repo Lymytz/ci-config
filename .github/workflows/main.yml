@@ -21,6 +21,8 @@ on:
         required: false
       LYMYTZ_DB_PASSWORD:
         required: false
+      LYMYTZ_MAIL_PASSWORD:
+        required: false
     inputs:
       repository_username:
         type: string
@@ -350,5 +352,6 @@ jobs:
           # Démarrer un nouveau conteneur en mappant le port trouvé
           docker --context vm run -d --name ${{ inputs.project_key }} -p ${PORT}:${PORT} \
             -e LYMYTZ_DB_PASSWORD="${{ secrets.LYMYTZ_DB_PASSWORD }}" \
+            -e LYMYTZ_MAIL_PASSWORD="${{ secrets.LYMYTZ_MAIL_PASSWORD }}" \
             -e "${APP_ENV_NAME}=${PORT}" \
             $IMAGE
