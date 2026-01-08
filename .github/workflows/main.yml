@@ -335,7 +335,7 @@ jobs:
             echo "::warning:: impossible de récupérer l'inventaire depuis $INVENTORY_URL, tentative locale" 
           fi
           if [ -f "$INVENTORY_FILE" ]; then
-            PORT=$(grep -E "^${{ inputs.project_key }}=" "$INVENTORY_FILE" | head -n1 | cut -d'=' -f2- | tr -d ' ')
+            PORT=$(grep -E "^${{ inputs.project_key }}:" "$INVENTORY_FILE" | head -n1 | cut -d':' -f2- | tr -d ' ')
           fi
           if [ -z "$PORT" ]; then
             echo "::warning:: port introuvable dans $INVENTORY_FILE pour la clé '${{ inputs.application_name }}' — fallback 8090"
