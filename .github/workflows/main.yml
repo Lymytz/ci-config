@@ -323,6 +323,9 @@ jobs:
         run: |
           docker --context vm login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
       - uses: actions/checkout@v4
+      - name: Créer le réseau docker si absent
+        run: |
+          docker --context vm network create lymytz-network || echo "le réseau existe déjà"
       - name: Pull and Run the image
         run: |
           # Télécharger le fichier d'inventaire depuis le repository central
@@ -350,7 +353,9 @@ jobs:
           # Arrêter et supprimer le conteneur existant s'il existe
           docker --context vm rm -f ${{ inputs.project_key }} || echo "no container to remove"
           # Démarrer un nouveau conteneur en mappant le port trouvé
-          docker --context vm run -d --name ${{ inputs.project_key }} -p ${PORT}:${PORT} \
+          docker --context vm run -d --name ${{ inputs.project_key }} \
+            --network lymytz-network \
+            -p ${PORT}:${PORT} \
             -e LYMYTZ_DB_PASSWORD="${{ secrets.LYMYTZ_DB_PASSWORD }}" \
             -e LYMYTZ_MAIL_PASSWORD="${{ secrets.LYMYTZ_MAIL_PASSWORD }}" \
             -e "${APP_ENV_NAME}=${PORT}" \
